@@ -33,9 +33,9 @@
             <button class="btn" onclick="inviaVoto('BEAT UP')">BEAT UP</button>
             <button class="btn" onclick="inviaVoto('ESAPOP')">ESAPOP</button>
             <button class="btn" onclick="inviaVoto('ICOMPAGNIA LUNATICA')">ICOMPAGNIA LUNATICA</button>
-            <button class="btn" onclick="inviaVoto('THE BEAT LESS & THEIR BACKING SINGERS')">THE BEAT LESS & THEIR BACKING SINGERS </button>
+            <button class="btn" onclick="inviaVoto('THE BEAT LESS & THEIR BACKING SINGERS')">THE BEAT LESS & THEIR BACKING SINGERS</button>
         </div>
-        <div id="status" class="loading">Sincronizzazione voto...</div>
+        <div id="status" class="loading">Sincronizzazione voto con il palco...</div>
     </div>
 
     <script>
@@ -43,16 +43,19 @@
         const voterId = urlParams.get('id');
         document.getElementById('display-id').innerText = "TOKEN: " + (voterId || "ID MANCANTE");
 
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzzS1ywPBuP326-HQlOq-bOWMNz81FbNNZWFQ6awge1MaChjoBoNeFKzpm8lRTDSZ8/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw4IdTz2laTcQC9cQhOu6PEE6yuW-IZekRM6IBU9eQ463gWlLI-hVtCAWT3ZSRXLyw/exec";
 
         function inviaVoto(band) {
-            if (!voterId) { alert("Scansiona un QR code valido!"); return; }
+            if (!voterId) { 
+                alert("Scansiona un QR code valido!"); 
+                return; 
+            }
             
             document.getElementById('status').style.display = 'block';
             const buttons = document.getElementsByClassName('btn');
             for(let b of buttons) b.disabled = true;
 
-            const callbackName = 'cb_' + Math.round(100000 * Math.random());
+            const callbackName = 'callback_' + Math.round(100000 * Math.random());
             
             window[callbackName] = function(data) {
                 const messaggio = data.risultato;
@@ -62,20 +65,25 @@
                     "<div style='font-size:60px;margin-bottom:20px'>" + (isError ? "❌" : "🤘") + "</div>" +
                     "<h2 style='color:" + (isError ? "#ff4d4d" : "#1DB954") + "'>" + messaggio + "</h2>" +
                     "<p style='color:#b3b3b3'>Goditi la serata!</p>";
-                    
+                
                 delete window[callbackName];
-                const s = document.getElementById('jsonp-script');
-                if(s) s.parentNode.removeChild(s);
+                const scriptNode = document.getElementById('jsonp-temp');
+                if (scriptNode) scriptNode.remove();
             };
 
             const script = document.createElement('script');
-            script.id = 'jsonp-script';
-            script.src = `${SCRIPT_URL}?id=${encodeURIComponent(voterId)}&scelta=${encodeURIComponent(band)}&callback=${callbackName}&t=${new Date().getTime()}`;
+            script.id = 'jsonp-temp';
+            script.src = SCRIPT_URL + "?id=" + encodeURIComponent(voterId) + 
+                         "&scelta=" + encodeURIComponent(band) + 
+                         "&callback=" + callbackName + 
+                         "&t=" + new Date().getTime();
+
             script.onerror = function() { 
                 alert("Errore di connessione. Riprova."); 
-                for(let b of buttons) b.disabled = false;
                 document.getElementById('status').style.display = 'none';
+                for(let b of buttons) b.disabled = false;
             };
+
             document.body.appendChild(script);
         }
     </script>
