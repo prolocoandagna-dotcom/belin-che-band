@@ -73,9 +73,11 @@
 
             const script = document.createElement('script');
             script.id = 'jsonp-temp';
-           // Invece di usare il "+" per unire le stringhe, usiamo i backtick ovunque (già fatto)
-// ma assicuriamoci che non ci siano spazi strani
-script.src = SCRIPT_URL + "?id=" + encodeURIComponent(voterId) + "&scelta=" + encodeURIComponent(band) + "&callback=" + callbackName + "&t=" + Date.now();
+           // Il parametro _cacheBuster assicura che il browser veda ogni voto come una pagina totalmente nuova
+script.src = SCRIPT_URL + "?id=" + encodeURIComponent(voterId) + 
+             "&scelta=" + encodeURIComponent(band) + 
+             "&callback=" + callbackName + 
+             "&_cacheBuster=" + Date.now();
 
             script.onerror = function() { 
                 alert("Errore di connessione. Riprova."); 
