@@ -44,7 +44,7 @@
         document.getElementById('display-id').innerText = "TOKEN: " + (voterId || "ID MANCANTE");
 
         // ATTENZIONE: Incolla qui il tuo URL di Google Script (quello che finisce con /exec)
-        const SCRIPT_URL = "INSERISCI_QUI_IL_TUO_URL_DI_GOOGLE_SCRIPT";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxffy-gYeOszSWZKcpCS5CyMrphG4oDpVAUuwh7zjEruSNhFzd8GAqQ0dWaCd8D2ro/exec";
 
         function inviaVoto(band) {
             if (!voterId) { alert("Scansiona un QR code valido!"); return; }
