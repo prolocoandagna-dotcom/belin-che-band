@@ -1,75 +1,36 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Votazione Belin, che band!</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        :root { --bg: #121212; --card: #1e1e1e; --accent: #1DB954; --text: #fff; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px 0; }
-        .container { background: var(--card); padding: 30px 20px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 85%; max-width: 400px; text-align: center; }
-        .icon { font-size: 45px; color: var(--accent); margin-bottom: 10px; }
-        h2 { margin: 0 0 10px 0; font-size: 1.6rem; color: var(--accent); }
-        .id-badge { background: rgba(29, 185, 84, 0.1); color: var(--accent); padding: 5px 15px; border: 1px solid var(--accent); border-radius: 50px; font-size: 0.8em; margin-bottom: 25px; display: inline-block; }
-        .band-list { max-height: 400px; overflow-y: auto; margin-bottom: 15px; padding-right: 5px; }
-        .btn { display: block; width: 100%; padding: 15px; margin: 12px 0; font-size: 14px; font-weight: 600; cursor: pointer; background: var(--accent); color: #000; border: none; border-radius: 50px; text-transform: uppercase; transition: transform 0.1s; }
-        .btn:active { transform: scale(0.96); }
-        .btn:disabled { background: #333; color: #666; }
-        .loading { display: none; margin-top: 15px; font-size: 0.8em; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-    </style>
-</head>
-<body>
-    <div class="container" id="main-content">
-        <div class="icon">🎸</div>
-        <h2>Belin, che band!</h2>
-        <div class="id-badge" id="display-id">TOKEN: Caricamento...</div>
+const urlParams = new URLSearchParams(window.location.search);
+const voterId = urlParams.get('id');
+document.getElementById('display-id').innerText = "TOKEN: " + (voterId || "ID MANCANTE");
+
+const SCRIPT_URL =https://script.google.com/macros/s/AKfycbw4IdTz2laTcQC9cQhOu6PEE6yuW-IZekRM6IBU9eQ463gWlLI-hVtCAWT3ZSRXLyw/exec; // Assicurati che sia quello aggiornato!
+
+function inviaVoto(band) {
+    if (!voterId) { alert("Scansiona un QR code valido!"); return; }
+    
+    document.getElementById('status').style.display = 'block';
+    const buttons = document.getElementsByClassName('btn');
+    for(let b of buttons) b.disabled = true;
+
+    // Creiamo un elemento "script" temporaneo per inviare il voto e ricevere la risposta
+    const script = document.createElement('script');
+    const callbackName = 'handleResponse';
+    
+    // Definiamo cosa fare quando riceviamo la risposta da Google
+    window[callbackName] = function(data) {
+        const messaggio = data.risultato;
+        const isError = messaggio.includes("Errore");
         
-        <div class="band-list" id="buttons">
-            <button class="btn" onclick="inviaVoto('ALKEMIAN')">ALKEMIAN</button>
-            <button class="btn" onclick="inviaVoto('ANNA AND THE MONKEYS')">ANNA AND THE MONKEYS</button>
-            <button class="btn" onclick="inviaVoto('APPLEFIELD')">APPLEFIELD</button>
-            <button class="btn" onclick="inviaVoto('BEAT UP')">BEAT UP</button>
-            <button class="btn" onclick="inviaVoto('ESAPOP')">ESAPOP</button>
-            <button class="btn" onclick="inviaVoto('ICOMPAGNIA LUNATICA')">ICOMPAGNIA LUNATICA</button>
-            <button class="btn" onclick="inviaVoto('THE BEAT LESS & THEIR BACKING SINGERS')">THE BEAT LESS & THEIR BACKING SINGERS</button>
-        </div>
-        <div id="status" class="loading">Sincronizzazione voto con il palco...</div>
-    </div>
-
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const voterId = urlParams.get('id');
-        document.getElementById('display-id').innerText = "TOKEN: " + (voterId || "ID MANCANTE");
-
-        // ATTENZIONE: Incolla qui il tuo URL di Google Script (quello che finisce con /exec)
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxR6Grjc2D78l8zeBEn7NvHHX0GrCqdbCTjpDusfDtiRV7lr7sbk_1ob_oJ2n2qcaQ/exec";
-
-        function inviaVoto(band) {
-            if (!voterId) { alert("Scansiona un QR code valido!"); return; }
+        document.getElementById('main-content').innerHTML = 
+            "<div style='font-size:60px;margin-bottom:20px'>" + (isError ? "❌" : "🤘") + "</div>" +
+            "<h2 style='color:" + (isError ? "#ff4d4d" : "#1DB954") + "'>" + messaggio + "</h2>" +
+            "<p style='color:#b3b3b3'>Goditi il festival!</p>";
             
-            document.getElementById('status').style.display = 'block';
-            const buttons = document.getElementsByClassName('btn');
-            for(let b of buttons) b.disabled = true;
+        // Pulizia
+        delete window[callbackName];
+        document.body.removeChild(script);
+    };
 
-            // Invio dati tramite parametro URL (più compatibile con Google Apps Script)
-            fetch(`${SCRIPT_URL}?id=${encodeURIComponent(voterId)}&scelta=${encodeURIComponent(band)}`, {
-                method: 'GET',
-                mode: 'no-cors'
-            })
-            .then(() => {
-                document.getElementById('main-content').innerHTML = 
-                    "<div style='font-size:60px;margin-bottom:20px'>🤘</div>" +
-                    "<h2 style='color:#1DB954'>Voto registrato!</h2>" +
-                    "<p style='color:#b3b3b3'>Grazie per aver votato al Belin, che band!</p>";
-            })
-            .catch(err => {
-                alert("Errore di connessione. Riprova.");
-                for(let b of buttons) b.disabled = false;
-                document.getElementById('status').style.display = 'none';
-            });
-        }
-    </script>
-</body>
-</html>
+    // Invio della richiesta
+    script.src = `${SCRIPT_URL}?id=${encodeURIComponent(voterId)}&scelta=${encodeURIComponent(band)}&callback=${callbackName}`;
+    document.body.appendChild(script);
+}
