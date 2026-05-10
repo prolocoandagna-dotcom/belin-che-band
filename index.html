@@ -73,10 +73,9 @@
 
             const script = document.createElement('script');
             script.id = 'jsonp-temp';
-            script.src = SCRIPT_URL + "?id=" + encodeURIComponent(voterId) + 
-                         "&scelta=" + encodeURIComponent(band) + 
-                         "&callback=" + callbackName + 
-                         "&t=" + new Date().getTime();
+           // Invece di usare il "+" per unire le stringhe, usiamo i backtick ovunque (già fatto)
+// ma assicuriamoci che non ci siano spazi strani
+script.src = SCRIPT_URL + "?id=" + encodeURIComponent(voterId) + "&scelta=" + encodeURIComponent(band) + "&callback=" + callbackName + "&t=" + Date.now();
 
             script.onerror = function() { 
                 alert("Errore di connessione. Riprova."); 
