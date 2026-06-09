@@ -37,6 +37,10 @@
         max-width: 400px;
         text-align: center;
         box-sizing: border-box;
+        /* Ottimizzazione Pixel 8: permette alla card di adattarsi elegantemente all'altezza */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
       }
 
       .icon { 
@@ -63,24 +67,26 @@
         display: inline-block; 
         letter-spacing: 1px;
         font-weight: 600;
+        align-self: center; /* Centra il badge nel nuovo layout flex */
       }
 
       .band-list { 
-        max-height: 400px; 
+        /* Ottimizzazione Pixel 8: aumentata l'altezza massima per mostrare tutte le band senza scroll */
+        max-height: 520px; 
         overflow-y: auto; 
         margin-bottom: 15px; 
         padding-right: 5px; 
       }
 
-      /* Ottimizzazione barra di scorrimento per mobile */
+      /* Ottimizzazione barra di scorrimento per mobile (se necessaria su schermi molto vecchi) */
       .band-list::-webkit-scrollbar { width: 5px; }
       .band-list::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 
       .btn { 
         display: block; 
         width: 100%; 
-        padding: 15px 10px; 
-        margin: 12px 0; 
+        padding: 14px 10px; /* Leggermente ridotto il padding verticale per ottimizzare lo spazio */
+        margin: 10px 0; /* Ridotto il margine tra i bottoni */
         font-size: 14px; 
         font-weight: 600; 
         cursor: pointer; 
@@ -134,59 +140,48 @@
         <button class="btn" onclick="inviaVoto('BEAT UP')">BEAT UP</button>
         <button class="btn" onclick="inviaVoto('ESAPOP')">ESAPOP</button>
         <button class="btn" onclick="inviaVoto('ICOMPAGNIA LUNATICA')">ICOMPAGNIA LUNATICA</button>
-        <button class="btn" onclick="inviaVoto('THE BEAT LESS & THEIR BACKING SINGERS')">THE BEAT LESS & THEIR BACKING SINGERS</button>
+        <button class="btn" onclick="inviaVoto('THE BEAT LESS AND THEIR BACKING SINGERS')">THE BEAT LESS...</button>
       </div>
       
       <div id="status" class="loading">Sincronizzazione voto con il database...</div>
     </div>
 
     <script>
-      // 1. Recupera l'ID del token direttamente dai parametri dell'URL (?id=...)
       const urlParams = new URLSearchParams(window.location.search);
       const tokenID = urlParams.get('id') || "NESSUN_ID";
       
-      // Mostra il token a video nell'interfaccia
       document.getElementById('token-display').innerText = "TOKEN: " + tokenID;
 
-      // URL esatto della tua Web App di Google Apps Script (Aggiornato!)
       const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypCEbpXkFnhVt8mn9y9FBys31v43-ITwg1DFrTwPWE44rG2jbGHCyEkZtjIDL9qYw/exec";
 
       function inviaVoto(bandScelta) {
-        // Disabilita l'interfaccia ed evidenzia il caricamento
         document.getElementById('status').style.display = 'block';
         const buttons = document.getElementsByClassName('btn');
         for (let i = 0; i < buttons.length; i++) {
           buttons[i].disabled = true;
         }
 
-        // Genera un nome di funzione univoco per il callback JSONP
         const callbackName = "jsonp_callback_" + Math.round(100000 * Math.random());
         
-        // Definisce globalmente la funzione che riceverà la risposta da Google
         window[callbackName] = function(data) {
           const messaggio = data.risultato;
           const esitoErrore = messaggio.includes("Errore");
           
-          // Icona impostata su Stella (⭐) per un feedback chiaro e positivo
           const iconaFinale = esitoErrore ? "❌" : "⭐";
           const coloreTesto = esitoErrore ? "var(--error-color)" : "var(--accent-music)";
 
-          // Sostituisce l'intera card con la schermata di responso finale
           document.getElementById('main-content').innerHTML = `
             <div style="font-size: 60px; margin-bottom: 20px;">${iconaFinale}</div>
             <h2 style="color: ${coloreTesto}">${messaggio}</h2>
             <p style="color: var(--accent-secondary); margin-top: 20px;">Goditi il festival!</p>
           `;
 
-          // Pulizia del tag script creato per la chiamata
           document.body.removeChild(scriptTag);
           delete window[callbackName];
         };
 
-        // Creazione dell'URL per la chiamata JSONP cross-origin
         const urlCompleto = `${GOOGLE_SCRIPT_URL}?id=${encodeURIComponent(tokenID)}&scelta=${encodeURIComponent(bandScelta)}&callback=${callbackName}`;
 
-        // Inserisce dinamicamente lo script per avviare la chiamata
         const scriptTag = document.createElement('script');
         scriptTag.src = urlCompleto;
         document.body.appendChild(scriptTag);
