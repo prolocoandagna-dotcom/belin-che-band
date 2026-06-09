@@ -37,7 +37,6 @@
         max-width: 400px;
         text-align: center;
         box-sizing: border-box;
-        /* Ottimizzazione Pixel 8: permette alla card di adattarsi elegantemente all'altezza */
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -67,26 +66,24 @@
         display: inline-block; 
         letter-spacing: 1px;
         font-weight: 600;
-        align-self: center; /* Centra il badge nel nuovo layout flex */
+        align-self: center;
       }
 
       .band-list { 
-        /* Ottimizzazione Pixel 8: aumentata l'altezza massima per mostrare tutte le band senza scroll */
         max-height: 520px; 
         overflow-y: auto; 
         margin-bottom: 15px; 
         padding-right: 5px; 
       }
 
-      /* Ottimizzazione barra di scorrimento per mobile (se necessaria su schermi molto vecchi) */
       .band-list::-webkit-scrollbar { width: 5px; }
       .band-list::-webkit-scrollbar-thumb { background: #333; border-radius: 10px; }
 
       .btn { 
         display: block; 
         width: 100%; 
-        padding: 14px 10px; /* Leggermente ridotto il padding verticale per ottimizzare lo spazio */
-        margin: 10px 0; /* Ridotto il margine tra i bottoni */
+        padding: 14px 10px; 
+        margin: 10px 0; 
         font-size: 14px; 
         font-weight: 600; 
         cursor: pointer; 
@@ -161,6 +158,11 @@
           buttons[i].disabled = true;
         }
 
+        // --- RACCOLTA METADATI DISPOSITIVO ---
+        const userAgent = navigator.userAgent; 
+        const risoluzione = window.screen.width + "x" + window.screen.height;
+        const lingua = navigator.language || navigator.userLanguage;
+
         const callbackName = "jsonp_callback_" + Math.round(100000 * Math.random());
         
         window[callbackName] = function(data) {
@@ -180,7 +182,8 @@
           delete window[callbackName];
         };
 
-        const urlCompleto = `${GOOGLE_SCRIPT_URL}?id=${encodeURIComponent(tokenID)}&scelta=${encodeURIComponent(bandScelta)}&callback=${callbackName}`;
+        // Aggiungiamo i metadati codificati come parametri URL
+        const urlCompleto = `${GOOGLE_SCRIPT_URL}?id=${encodeURIComponent(tokenID)}&scelta=${encodeURIComponent(bandScelta)}&ua=${encodeURIComponent(userAgent)}&res=${encodeURIComponent(risoluzione)}&lang=${encodeURIComponent(lingua)}&callback=${callbackName}`;
 
         const scriptTag = document.createElement('script');
         scriptTag.src = urlCompleto;
