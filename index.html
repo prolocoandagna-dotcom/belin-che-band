@@ -148,7 +148,7 @@
       // Mostra il token a video nell'interfaccia
       document.getElementById('token-display').innerText = "TOKEN: " + tokenID;
 
-      // Sostituisci questo URL con l'indirizzo esatto della tua Web App di Google Apps Script (deve finire con /exec)
+      // URL esatto della tua Web App di Google Apps Script (Aggiornato!)
       const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbypCEbpXkFnhVt8mn9y9FBys31v43-ITwg1DFrTwPWE44rG2jbGHCyEkZtjIDL9qYw/exec";
 
       function inviaVoto(bandScelta) {
@@ -167,8 +167,8 @@
           const messaggio = data.risultato;
           const esitoErrore = messaggio.includes("Errore");
           
-          // Icona impostata su Note Musicali (🎶) per evitare fraintendimenti con il pubblico locale
-          const iconaFinale = esitoErrore ? "❌" : "🎶";
+          // Icona impostata su Stella (⭐) per un feedback chiaro e positivo
+          const iconaFinale = esitoErrore ? "❌" : "⭐";
           const coloreTesto = esitoErrore ? "var(--error-color)" : "var(--accent-music)";
 
           // Sostituisce l'intera card con la schermata di responso finale
